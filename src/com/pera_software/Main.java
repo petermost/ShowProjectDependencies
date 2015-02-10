@@ -39,7 +39,11 @@ public class Main extends Application {
 		TreeItem< String > projectItem = new TreeItem<>( projectFile.path().getFileName().toString() );
 		parentItem.getChildren().add( projectItem );
 
-		for ( ProjectFile projectReference : projectFile.getProjectReferences( ) )
+		for ( ProjectFile projectReference : projectFile.getProjectReferences() ) {
+			for ( String libraryReference : projectFile.getLibraryReferences() ) {
+				parentItem.getChildren().add( new TreeItem<>( libraryReference ));
+			}
 			buildProjectTree( projectItem, projectReference );
+		}
 	}
 }

@@ -1,7 +1,9 @@
 package com.pera_software;
 
 import java.nio.file.*;
+import java.util.*;
 import javafx.application.*;
+import javafx.event.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
@@ -18,6 +20,8 @@ public class Main extends Application {
 	private static final String CS_ICON_NAME  = "resources/icons16x16/text-x-csharp.png";
 	private static final String LIB_ICON_NAME = "resources/icons16x16/shared-lib.png";
 	
+	private Stage _stage;
+	
 	//==============================================================================================
 	
 	public static void main( String arguments[] ) {
@@ -29,23 +33,61 @@ public class Main extends Application {
 	
 	@Override
 	public void start( Stage stage ) throws Exception {
-		StackPane stackPane = new StackPane();
+		_stage = stage;
+		MenuBar menuBar = new MenuBar();
+		menuBar.getMenus().add( createFileMenu() );
+		
 
-		for ( String solutionFileName : Settings.solutionFileNames() ) {
-			SolutionFile solutionFile = new SolutionFile( Paths.get( solutionFileName ));
-			TreeItem< String > solutionItem = createSolutionItem( solutionFile );
-			TreeView< String > treeView = new TreeView<>( solutionItem );
-			
-			for ( ProjectFile projectFile : solutionFile.findProjects() ) {
-				buildProjectTree( solutionItem, projectFile );
-			}
-			stackPane.getChildren().add( treeView );
-		}
-		Scene scene = new Scene( stackPane );
+		BorderPane borderPane = new BorderPane();
+		borderPane.setTop( menuBar );
+		borderPane.setCenter( createDependencyTree( Settings.solutionFileNames().get( 0 )));
+		
+		Scene scene = new Scene( borderPane );
 		stage.setScene( scene );
 		stage.show();
 	}
 
+	//==============================================================================================
+	
+	private static TreeView< String > createDependencyTree( String solutionFileName ) throws Exception {
+		SolutionFile solutionFile = new SolutionFile( Paths.get( solutionFileName ));
+		TreeItem< String > solutionItem = createSolutionItem( solutionFile );
+		
+		for ( ProjectFile projectFile : solutionFile.findProjects() ) {
+			buildProjectTree( solutionItem, projectFile );
+		}
+		return new TreeView<>( solutionItem );
+	}
+	
+	//==============================================================================================
+	
+	private Menu createFileMenu() {
+		MenuItem open = new MenuItem( "_Open..." );
+		open.setOnAction( this::onOpen );
+		
+		MenuItem exit = new MenuItem( "E_xit" );
+		exit.setOnAction( this::onExit );
+		
+		Menu fileMenu = new Menu( "_File" );
+		fileMenu.getItems().addAll( open, exit );
+		
+		return fileMenu;
+	}
+	
+	//==============================================================================================
+	
+	private void onOpen( ActionEvent event ) {
+		FileChooser chooser = new FileChooser();
+		chooser.setTitle( "Choose solution file" );
+		chooser.showOpenDialog( _stage );
+	}
+
+	//==============================================================================================
+	
+	private void onExit( @SuppressWarnings( "unused" ) ActionEvent event ) {
+		Platform.exit();
+	}
+	
 	//==============================================================================================
 	
 	private static TreeItem< String > createSolutionItem( SolutionFile solutionFile ) {

@@ -119,12 +119,12 @@ public class Main extends Application {
 
 	private void buildSolutionTree( SolutionFile solutionFile, TreeItem< String > solutionItem ) throws Exception {
 		List< ProjectFile > projectFiles = solutionFile.loadProjects();
-		_statusBar.setText( String.format( "Loaded %d projects", projectFiles.size() ));
 		Thread builder = new Thread(() -> {
 			try {
 				for ( ProjectFile projectFile : projectFiles ) {
 					buildProjectTree( solutionFile, solutionItem, projectFile );
 				}
+				Platform.runLater( () -> _statusBar.setText( String.format( "Finished loading %d projects", projectFiles.size() )));
 			} catch ( Exception exception ) {
 				exception.printStackTrace();
 			}

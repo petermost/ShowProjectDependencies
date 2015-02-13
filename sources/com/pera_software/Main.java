@@ -16,15 +16,19 @@ import com.pera_software.aidkit.visualstudio.*;
 
 public class Main extends Application {
 
-	private static final String SLN_ICON_NAME = "resources/icons16x16/visual-studio-solution.png";
-	private static final String CPP_ICON_NAME = "resources/icons16x16/text-x-c++src.png";
-	private static final String CS_ICON_NAME = "resources/icons16x16/text-x-csharp.png";
-	private static final String LIB_ICON_NAME = "resources/icons16x16/shared-lib.png";
+	private static final String SLN_ICON_NAME = "icons16x16/visual-studio-solution.png";
+	private static final String CPP_ICON_NAME = "icons16x16/text-x-c++src.png";
+	private static final String CS_ICON_NAME = "icons16x16/text-x-csharp.png";
+	private static final String LIB_ICON_NAME = "icons16x16/shared-lib.png";
+	private static final String NODE_ICON_NAME = "icons16x16/folder-yellow.png";
+	private static final String EXIT_ICON_NAME = "icons16x16/application-exit.png";
 
 	private static final Image SLN_IMAGE = new Image( Main.class.getResourceAsStream( SLN_ICON_NAME ));
 	private static final Image CPP_IMAGE = new Image( Main.class.getResourceAsStream( CPP_ICON_NAME ));
 	private static final Image CS_IMAGE  = new Image( Main.class.getResourceAsStream( CS_ICON_NAME ));
 	private static final Image LIB_IMAGE = new Image( Main.class.getResourceAsStream( LIB_ICON_NAME ));
+	private static final Image NODE_IMAGE = new Image( Main.class.getResourceAsStream( NODE_ICON_NAME ));
+	private static final Image EXIT_IMAGE = new Image( Main.class.getResourceAsStream( EXIT_ICON_NAME ));
 
 	private static final Map< String, Image > ICONS = new HashMap<>();
 	static {
@@ -32,6 +36,8 @@ public class Main extends Application {
 		ICONS.put( CPP_ICON_NAME, CPP_IMAGE );
 		ICONS.put( CS_ICON_NAME,  CS_IMAGE  );
 		ICONS.put( LIB_ICON_NAME, LIB_IMAGE );
+		ICONS.put( NODE_ICON_NAME, NODE_IMAGE );
+		ICONS.put( EXIT_ICON_NAME, EXIT_IMAGE );
 	}
 
 	private Stage _stage;
@@ -93,6 +99,7 @@ public class Main extends Application {
 		open.setOnAction( this::onOpen );
 
 		MenuItem exit = new MenuItem( "E_xit" );
+		exit.setGraphic( getIcon( EXIT_ICON_NAME ));
 		exit.setOnAction( this::onExit );
 
 		Menu fileMenu = new Menu( "_File" );
@@ -134,21 +141,36 @@ public class Main extends Application {
 
 	//==============================================================================================
 
+	private static void buildLibrariesTree( TreeItem< String > parentItem, List< String > libraryNames )
+	{
+		if ( !libraryNames.isEmpty() ) {
+			TreeItem< String > librariesItem = new TreeItem<>( "Libraries" );
+			librariesItem.setGraphic( getIcon( NODE_ICON_NAME ));
+			parentItem.getChildren().add( librariesItem );
+
+			for ( String libraryName : libraryNames ) {
+				TreeItem< String > libraryItem = new TreeItem<>( libraryName );
+				libraryItem.setGraphic( getIcon( LIB_ICON_NAME ));
+				librariesItem.getChildren().add( libraryItem );
+			}
+		}
+	}
+
+	//==============================================================================================
+
 	private static void buildProjectTree( SolutionFile solutionFile, TreeItem< String > parentItem ,
 		ProjectFile projectFile  ) throws Exception {
 
 		TreeItem< String > projectItem = new TreeItem<>( projectFile.path().getFileName().toString() );
 		projectItem.setGraphic( getProjectIcon( projectFile ));
-		for ( Path projectReferencePath : projectFile.getProjectReferences() ) {
-			for ( String libraryReference : projectFile.getLibraryReferences() ) {
-				TreeItem< String > libraryItem = new TreeItem<>( libraryReference );
-				libraryItem.setGraphic( getIcon( LIB_ICON_NAME ));
-				projectItem.getChildren().add( libraryItem );
-			}
-			ProjectFile projectReference = solutionFile.findProject( projectReferencePath );
+
+		parentItem.getChildren().add( projectItem );
+
+		buildLibrariesTree( projectItem, projectFile.getLibraryReferences() );
+		for ( Path referencedProjectPath : projectFile.getProjectReferences() ) {
+			ProjectFile projectReference = solutionFile.findProject( referencedProjectPath );
 			buildProjectTree( solutionFile, projectItem, projectReference );
 		}
-		parentItem.getChildren().add( projectItem );
 	}
 
 	//==============================================================================================

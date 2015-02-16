@@ -19,7 +19,7 @@ public class Main extends Application {
 	private static final String SLN_ICON_NAME = "icons16x16/visual-studio-solution.png";
 	private static final String CPP_ICON_NAME = "icons16x16/text-x-c++src.png";
 	private static final String CS_ICON_NAME = "icons16x16/text-x-csharp.png";
-	private static final String LIB_ICON_NAME = "icons16x16/shared-lib.png";
+	private static final String LIB_ICON_NAME = "icons16x16/code-class.png";
 	private static final String NODE_ICON_NAME = "icons16x16/folder-yellow.png";
 	private static final String EXIT_ICON_NAME = "icons16x16/application-exit.png";
 
@@ -141,7 +141,7 @@ public class Main extends Application {
 
 	//==============================================================================================
 
-	private static void buildLibrariesTree( TreeItem< String > parentItem, List< String > libraryNames )
+	private static void buildLibraryBranch( TreeItem< String > parentItem, List< String > libraryNames )
 	{
 		if ( !libraryNames.isEmpty() ) {
 			TreeItem< String > librariesItem = new TreeItem<>( "Libraries" );
@@ -166,7 +166,7 @@ public class Main extends Application {
 
 		parentItem.getChildren().add( projectItem );
 
-		buildLibrariesTree( projectItem, projectFile.getLibraryReferences() );
+		buildLibraryBranch( projectItem, projectFile.getLibraryReferences() );
 		for ( Path referencedProjectPath : projectFile.getProjectReferences() ) {
 			ProjectFile projectReference = solutionFile.findProject( referencedProjectPath );
 			buildProjectTree( solutionFile, projectItem, projectReference );

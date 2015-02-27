@@ -2,13 +2,13 @@ package com.pera_software;
 
 import java.nio.file.*;
 import java.util.*;
-import org.controlsfx.control.*;
 import javafx.application.*;
 import javafx.event.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
+import org.controlsfx.control.*;
 import com.pera_software.aidkit.visualstudio.*;
 import com.pera_software.company.*;
 import com.pera_software.items.*;
@@ -53,19 +53,6 @@ public class Main extends Application {
 		buildSolutionTree( solutionFile, solutionItem );
 	}
 
-	//==============================================================================================
-
-	private static void sortByProjectName( List< ProjectFile > projects ) {
-		Collections.sort( projects, ( left, right ) -> {
-			try {
-				String leftFileName = left.path().getFileName().toString();
-				String rightFileName = right.path().getFileName().toString();
-				return leftFileName.compareTo( rightFileName );
-			} catch ( Exception exception ) {
-				throw new Error( exception );
-			}
-		});
-	}
 
 	//==============================================================================================
 
@@ -109,10 +96,26 @@ public class Main extends Application {
 				}
 				Platform.runLater( () -> _statusBar.setText( String.format( "Finished loading %d projects", projectFiles.size() )));
 			} catch ( Exception exception ) {
-				exception.printStackTrace();
+				throw new Error( exception );
 			}
 		});
 		builder.start();
+	}
+
+	//==============================================================================================
+
+	private static void buildProjectTree( SolutionFile solutionFile, TreeItem< String > parentItem ,
+		ProjectFile projectFile  ) throws Exception {
+
+		ProjectTreeItem projectItem = new ProjectTreeItem( projectFile );
+
+		Platform.runLater( () -> parentItem.getChildren().add( projectItem ));
+
+		for ( Path referencedProjectPath : projectFile.getProjectReferences() ) {
+			ProjectFile projectReference = solutionFile.findProject( referencedProjectPath );
+			buildProjectTree( solutionFile, projectItem, projectReference );
+		}
+		buildLibraryBranch( projectItem, projectFile.getLibraryReferences() );
 	}
 
 	//==============================================================================================
@@ -132,17 +135,30 @@ public class Main extends Application {
 
 	//==============================================================================================
 
-	private static void buildProjectTree( SolutionFile solutionFile, TreeItem< String > parentItem ,
-		ProjectFile projectFile  ) throws Exception {
-
-		ProjectTreeItem projectItem = new ProjectTreeItem( projectFile );
-
-		Platform.runLater( () -> parentItem.getChildren().add( projectItem ));
-
-		for ( Path referencedProjectPath : projectFile.getProjectReferences() ) {
-			ProjectFile projectReference = solutionFile.findProject( referencedProjectPath );
-			buildProjectTree( solutionFile, projectItem, projectReference );
-		}
-		buildLibraryBranch( projectItem, projectFile.getLibraryReferences() );
+	private static void sortByProjectName( List< ProjectFile > projects ) {
+		Collections.sort( projects, ( left, right ) -> {
+			try {
+				String leftFileName = left.path().getFileName().toString();
+				String rightFileName = right.path().getFileName().toString();
+				return leftFileName.compareTo( rightFileName );
+			} catch ( Exception exception ) {
+				throw new Error( exception );
+			}
+		});
 	}
 }
+
+//private void buildSolutionTree2( SolutionFile solutionFile, TreeItem< String > solutionItem ) throws Exception {
+//	ExecutorService executor = Executors.newSingleThreadExecutor();
+//	Future< Void > builderFuture = executor.submit(() -> {
+//		List< ProjectFile > projectFiles = solutionFile.loadProjects();
+//		sortByProjectName( projectFiles );
+//		for ( ProjectFile projectFile : projectFiles ) {
+//			buildProjectTree( solutionFile, solutionItem, projectFile );
+//		}
+//		Platform.runLater( () -> _statusBar.setText( String.format( "Finished loading %d projects", projectFiles.size() )));
+//
+//		return null;
+//	});
+//	builderFuture.get();
+//}

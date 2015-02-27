@@ -30,7 +30,7 @@ public class Main extends Application {
 
 	@Override
 	public void start( Stage stage ) throws Exception {
-		stage.setTitle( "Project dependencies" );
+		stage.setTitle( String.format( "%s - %s", "Project dependencies", PERA.COPYRIGHT_LINE ));
 		stage.getIcons().add( PERA.icon() );
 
 		MenuBar menuBar = new MenuBar();
@@ -51,6 +51,20 @@ public class Main extends Application {
 		stage.show();
 
 		buildSolutionTree( solutionFile, solutionItem );
+	}
+
+	//==============================================================================================
+
+	private static void sortByProjectName( List< ProjectFile > projects ) {
+		Collections.sort( projects, ( left, right ) -> {
+			try {
+				String leftFileName = left.path().getFileName().toString();
+				String rightFileName = right.path().getFileName().toString();
+				return leftFileName.compareTo( rightFileName );
+			} catch ( Exception exception ) {
+				throw new Error( exception );
+			}
+		});
 	}
 
 	//==============================================================================================
@@ -87,6 +101,7 @@ public class Main extends Application {
 
 	private void buildSolutionTree( SolutionFile solutionFile, TreeItem< String > solutionItem ) throws Exception {
 		List< ProjectFile > projectFiles = solutionFile.loadProjects();
+		sortByProjectName( projectFiles );
 		Thread builder = new Thread(() -> {
 			try {
 				for ( ProjectFile projectFile : projectFiles ) {

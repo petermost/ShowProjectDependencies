@@ -9,8 +9,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 import org.controlsfx.control.*;
+import com.pera_software.aidkit.javafx.standard.*;
 import com.pera_software.aidkit.visualstudio.*;
 import com.pera_software.company.*;
+import com.pera_software.company.javafx.*;
 import com.pera_software.items.*;
 
 //##################################################################################################
@@ -34,7 +36,7 @@ public class Main extends Application {
 		stage.getIcons().add( PERA.icon() );
 
 		MenuBar menuBar = new MenuBar();
-		menuBar.getMenus().add( createFileMenu() );
+		menuBar.getMenus().addAll( createFileMenu(), createHelpMenu() );
 
 		_statusBar = new StatusBar();
 
@@ -57,17 +59,36 @@ public class Main extends Application {
 	//==============================================================================================
 
 	private Menu createFileMenu() {
-		MenuItem open = new MenuItem( "_Open..." );
+		MenuItem open = new OpenMenuItem();
 		open.setOnAction( this::onOpen );
 
-		MenuItem exit = new MenuItem( "E_xit" );
-		exit.setGraphic( Icons.get( Icons.EXIT_ICON_NAME ));
+		MenuItem exit = new ExitMenuItem();
 		exit.setOnAction( this::onExit );
 
 		Menu fileMenu = new Menu( "_File" );
 		fileMenu.getItems().addAll( open, exit );
 
 		return fileMenu;
+	}
+
+	//==============================================================================================
+
+	private Menu createHelpMenu() {
+		MenuItem aboutPERA = new AboutMenuItem();
+		aboutPERA.setOnAction( this::onAboutPERA );
+
+		Menu helpMenu = new Menu( "_Help" );
+		helpMenu.getItems().addAll( aboutPERA );
+
+		return helpMenu;
+	}
+
+	//==============================================================================================
+
+	private void onAboutPERA( @SuppressWarnings( "unused" ) ActionEvent event ) {
+		AboutDialog dialog = new AboutDialog( getHostServices() );
+
+		dialog.showAndWait();
 	}
 
 	//==============================================================================================

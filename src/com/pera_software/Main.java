@@ -6,6 +6,7 @@ import javafx.application.*;
 import javafx.event.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 import org.controlsfx.control.*;
@@ -33,7 +34,7 @@ public class Main extends Application {
 	@Override
 	public void start( Stage stage ) throws Exception {
 		stage.setTitle( String.format( "%s - %s", "Project dependencies", PERA.COPYRIGHT_LINE ));
-		stage.getIcons().add( PERA.icon() );
+		stage.getIcons().add( new Image( PERA.getResourceAsStream( PERA.ICON_NAME )));
 
 		MenuBar menuBar = new MenuBar();
 		menuBar.getMenus().addAll( createFileMenu(), createHelpMenu() );

@@ -1,12 +1,14 @@
 package com.pera_software;
 
 import java.nio.file.*;
+import javafx.scene.image.*;
 import javafx.stage.*;
 import com.pera_software.aidkit.javafx.application.*;
+import com.pera_software.company.*;
 
 //##################################################################################################
 
-public class Main extends Application {
+public class ShowProjectDependenciesApplication extends Application {
 
 	//==============================================================================================
 
@@ -18,11 +20,15 @@ public class Main extends Application {
 	//==============================================================================================
 
 	@Override
-	public void start( Stage stage ) throws Exception {
-		ApplicationMainScene mainWindow = new ApplicationMainScene( stage );
-		mainWindow.show();
+	public void start( Stage stage ) {
+		stage.setTitle( String.format( "%s - %s", "Project dependencies", PERA.COPYRIGHT_LINE ));
+		stage.getIcons().add( new Image( PERA.getResourceAsStream( PERA.ICON_NAME )));
 
-		mainWindow.showDependencies( Paths.get( Settings.solutionFileNames().get( 0 )));
+		ApplicationMainScene scene = new ApplicationMainScene( stage );
+		stage.setScene( scene );
+		stage.show();
+
+		scene.showDependencies( Paths.get( Settings.solutionFileNames().get( 0 )));
 	}
 }
 

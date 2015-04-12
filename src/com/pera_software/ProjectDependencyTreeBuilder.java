@@ -11,7 +11,7 @@ public class ProjectDependencyTreeBuilder {
 
 	public final Signal1< SolutionTreeItem > solutionItemAdded = new Signal1<>();
 	public final Signal2< TreeItem< String >, ProjectTreeItem > projectItemAdded = new Signal2<>();
-	public final Signal2< TreeItem< String >, LibrariesTreeItem > librariesItemAdded = new Signal2<>();
+	public final Signal2< ProjectTreeItem, LibrariesTreeItem > librariesItemAdded = new Signal2<>();
 	public final Signal2< LibrariesTreeItem, LibraryTreeItem > libraryItemAdded = new Signal2<>();
 	public final Signal1< Integer > buildingFinished = new Signal1<>();
 
@@ -60,7 +60,7 @@ public class ProjectDependencyTreeBuilder {
 
 	//==============================================================================================
 
-	private void buildLibraryBranch( TreeItem< String > parentItem, List< String > libraryNames ) throws Exception {
+	private void buildLibraryBranch( ProjectTreeItem parentItem, List< String > libraryNames ) throws Exception {
 		if ( !libraryNames.isEmpty() ) {
 			LibrariesTreeItem librariesItem = new LibrariesTreeItem();
 			librariesItemAdded.emit( parentItem, librariesItem );

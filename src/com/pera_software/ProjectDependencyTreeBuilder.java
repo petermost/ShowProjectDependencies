@@ -9,10 +9,13 @@ import com.pera_software.items.*;
 
 public class ProjectDependencyTreeBuilder {
 
+	public final Signal2< Integer, Integer > projectLoaded = new Signal2<>();
+
 	public final Signal1< SolutionTreeItem > solutionItemAdded = new Signal1<>();
 	public final Signal2< TreeItem< String >, ProjectTreeItem > projectItemAdded = new Signal2<>();
 	public final Signal2< ProjectTreeItem, LibrariesTreeItem > librariesItemAdded = new Signal2<>();
 	public final Signal2< LibrariesTreeItem, LibraryTreeItem > libraryItemAdded = new Signal2<>();
+
 	public final Signal1< Integer > buildingFinished = new Signal1<>();
 
 	//==============================================================================================
@@ -26,7 +29,7 @@ public class ProjectDependencyTreeBuilder {
 				solutionItemAdded.emit( solutionItem );
 				buildSolutionTree( solutionFile, solutionItem );
 			} catch ( Exception exception ) {
-				throw new RuntimeException( exception );
+				throw new Error( exception );
 			}
 		});
 		builder.start();
@@ -37,15 +40,17 @@ public class ProjectDependencyTreeBuilder {
 	private void buildSolutionTree( SolutionFile solutionFile, TreeItem< String > solutionItem ) throws Exception {
 		List< ProjectFile > projectFiles = solutionFile.loadProjects();
 		sortByProjectName( projectFiles );
-		for ( ProjectFile projectFile : projectFiles ) {
+		for ( int i = 0; i < projectFiles.size(); i++ ) {
+			ProjectFile projectFile = projectFiles.get( i );
 			buildProjectTree( solutionFile, solutionItem, projectFile );
+			projectLoaded.emit( i, projectFiles.size() );
 		}
 		buildingFinished.emit( projectFiles.size() );
 	}
 
 	//==============================================================================================
 
-	private void buildProjectTree( SolutionFile solutionFile, TreeItem< String > parentItem ,
+	private void buildProjectTree( SolutionFile solutionFile, TreeItem< String > parentItem,
 		ProjectFile projectFile  ) throws Exception {
 
 		ProjectTreeItem projectItem = new ProjectTreeItem( projectFile );

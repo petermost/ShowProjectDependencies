@@ -10,12 +10,13 @@ import com.pera_software.aidkit.javafx.scene.*;
 import com.pera_software.aidkit.javafx.scene.control.*;
 import com.pera_software.company.javafx.*;
 import com.pera_software.aidkit.javafx.application.Application;
+import static com.pera_software.aidkit.lang.Exceptions.*;
 
 //##################################################################################################
 
 public class ApplicationMainScene extends MainScene {
 
-	public ApplicationMainScene( Stage stage ) {
+	public ApplicationMainScene( Stage stage ) throws Exception {
 		super( 800, 600 );
 
 		menuBar().getMenus().addAll( createFileMenu( stage ), createHelpMenu() );
@@ -26,7 +27,7 @@ public class ApplicationMainScene extends MainScene {
 
 	//==============================================================================================
 
-	private Menu createFileMenu( Stage stage ) {
+	private Menu createFileMenu( Stage stage ) throws Exception {
 		MenuItem open = new OpenMenuItem();
 		open.setOnAction( event -> onOpen( stage ));
 
@@ -41,9 +42,9 @@ public class ApplicationMainScene extends MainScene {
 
 	//==============================================================================================
 
-	private static Menu createHelpMenu() {
+	private static Menu createHelpMenu() throws Exception {
 		MenuItem aboutPERA = new AboutMenuItem();
-		aboutPERA.setOnAction( event -> onAboutPERA() );
+		aboutPERA.setOnAction( event -> tryProcedure( () -> onAboutPERA() ));
 
 		Menu helpMenu = new Menu( "_Help" );
 		helpMenu.getItems().addAll( aboutPERA );
@@ -52,7 +53,7 @@ public class ApplicationMainScene extends MainScene {
 	}
 	//==============================================================================================
 
-	private static void onAboutPERA() {
+	private static void onAboutPERA() throws Exception {
 		AboutDialog dialog = new AboutDialog( Application.instance().getHostServices() );
 
 		dialog.showAndWait();
@@ -74,6 +75,12 @@ public class ApplicationMainScene extends MainScene {
 
 	public void showDependencies( Path solutionFilePath ) {
 		ProjectDependencyTreeBuilder treeBuilder = new ProjectDependencyTreeBuilder();
+
+		// Connect to the signals we want to show in the GUI:
+
+		treeBuilder.projectLoaded.connect(( projectNumber, projectFileCount ) -> {
+			Platform.runLater( () -> statusBar().setText( String.format( "Loaded %d of %d projects...", projectNumber, projectFileCount )));
+		});
 		treeBuilder.solutionItemAdded.connect(( solutionTreeItem ) -> {
 			Platform.runLater( () -> setCentralNode( new TreeView<>( solutionTreeItem )));
 		});

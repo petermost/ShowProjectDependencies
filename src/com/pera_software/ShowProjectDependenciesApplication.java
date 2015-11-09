@@ -20,7 +20,7 @@ public class ShowProjectDependenciesApplication extends Application {
 	//==============================================================================================
 
 	@Override
-	public void start( Stage stage ) {
+	public void start( Stage stage ) throws Exception {
 		stage.setTitle( String.format( "%s - %s", "Project dependencies", PERA.COPYRIGHT_LINE ));
 		stage.getIcons().add( new Image( PERA.getResourceAsStream( PERA.ICON_NAME )));
 

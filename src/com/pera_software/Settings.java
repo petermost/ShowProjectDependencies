@@ -3,18 +3,21 @@ package com.pera_software;
 import java.io.*;
 import java.util.*;
 import org.kohsuke.args4j.*;
-import com.pera_software.aidkit.lang.*;
+import com.pera_software.aidkit.system.*;
 
 //##################################################################################################
 
 public final class Settings {
 
 	private static class Attributes {
+		public Attributes() {
+		}
+
 		@Option( name = "-v", aliases = "--verbose", usage = "show more verbose messages" )
-		private boolean isVerbose = false;
+		public boolean isVerbose = false;
 
 		@Argument( metaVar = "solutionFileName...", required = true, usage = "the solution file name(s)" )
-		private List< String > solutionFileNames = new ArrayList<>();
+		public List< String > solutionFileNames = new ArrayList<>();
 	}
 
 	private static Attributes _attributes = new Attributes();
@@ -22,7 +25,7 @@ public final class Settings {
 
 	//==============================================================================================
 
-	Settings() {
+	private Settings() {
 	}
 
 	//==============================================================================================
@@ -54,6 +57,7 @@ public final class Settings {
 		StringWriter usageWriter = new StringWriter();
 		_commandLineParser.printUsage( usageWriter, null );
 		String usage = usageWriter.toString();
-		return Arrays.asList( usage.split( SystemProperties.getLineSeparator() ));
+		String lineSeparator = SystemProperties.getLineSeparator().orElse( "\n" );
+		return Arrays.asList( usage.split( lineSeparator ));
 	}
 }
